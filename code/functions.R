@@ -94,12 +94,21 @@ calculate_shortest_path_from_inputs <- function(cancer_path,
   ##get the length of the shortest path from the inputs to all the other genes
   all_genes <- unique(c(as.character(cancer_path$from),
                         as.character(cancer_path$to)))
-  inputs <- unique(as.character(MP$Gene_protein))
-  all_genes_no_inputs <- setdiff(all_genes, inputs)
   
-  shortest_paths_from_inputs <- calculate_shortest_path(inputs_in_path,
-                                                        all_genes_no_inputs,
-                                                        g)
+  ##only do the rest of this if at least one input is in all_genes - otherwise return NULL
+  shortest_paths_from_inputs <- NULL
+  
+  if(sum(inputs_in_path %in% all_genes)!=0)
+  {
+    inputs <- unique(as.character(MP$Gene_protein))
+    all_genes_no_inputs <- setdiff(all_genes, inputs)
+    
+    shortest_paths_from_inputs <- calculate_shortest_path(inputs_in_path,
+                                                          all_genes_no_inputs,
+                                                          g)
+  }
+  
+  shortest_paths_from_inputs
 }
   
 ##function that calculates the shortest paths from some inputs to some outputs
@@ -183,12 +192,18 @@ get_downstream_from_inputs <- function(cancer_path,
                                         MP,
                                         inputs_in_path)
   
-  ##keep genes that have a shortest path > 0 from any of the oncogenes that are also positive in the MP report
-  ##get just these genes
-  ##want genes downstream of _all_ the inputs
-  ##first get list of all downstream things
-  get_downstream_nodes(inputs_in_path,
-                       shortest_paths_from_inputs)
+  ##if this is not null, get downstream nodes, otherwise just return an empty vector
+  downstream_nodes <- c()
+  if(!is.null(shortest_paths_from_inputs))
+  {
+    ##keep genes that have a shortest path > 0 from any of the oncogenes that are also positive in the MP report
+    ##get just these genes
+    ##want genes downstream of _all_ the inputs
+    ##first get list of all downstream things
+    downstream_nodes <- get_downstream_nodes(inputs_in_path,
+                                             shortest_paths_from_inputs)
+  }
+  downstream_nodes
 }
 
 ##function to get nodes downstream from given nodes (which are the inputs)
@@ -740,8 +755,9 @@ get_cat_3_4 <- function(MP, ##input data frame
   
   if(cat4 != "yes")
   {
-    ##get the oncogenes from that pathway
-    Onc_df <- dplyr::filter(Onc_df)
+    ##get the oncogenes from that pathway for all cancer types)
+    Onc_df <- dplyr::filter(Onc_df,	    
+                            Name == cancer_type)
     ##make sure these oncogenes are not wild type in the MP 
     ##(which means they would not in fact be oncogenic)
     ##get molecular alterations that are not wild-type in the MP
