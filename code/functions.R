@@ -741,8 +741,7 @@ get_cat_3_4 <- function(MP, ##input data frame
   if(cat4 != "yes")
   {
     ##get the oncogenes from that pathway
-    Onc_df <- dplyr::filter(Onc_df,
-                            Name == cancer_type)
+    Onc_df <- dplyr::filter(Onc_df)
     ##make sure these oncogenes are not wild type in the MP 
     ##(which means they would not in fact be oncogenic)
     ##get molecular alterations that are not wild-type in the MP
