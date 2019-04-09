@@ -339,8 +339,8 @@ server <- function(input, output, session) {
     Type3_df <- Type3()
     
     Type4 <- get_cat_3_4(MP, ##input data frame
-                         cancer_type = "Colorectal cancer", ##character string
-                         cat_drugs = "Only FDA-approved targeted therapies for cancer", ##character string - whether only targeted cancer therapies, all FDA approved therapies, or all drugs in DrugBank
+                         cancer_type = cancer_type, ##character string
+                         cat_drugs = cat_drugs, ##character string - whether only targeted cancer therapies, all FDA approved therapies, or all drugs in DrugBank
                          list_paths = list_paths_KEGG, ##list of pathways
                          Onc_df, ##data frame with oncogenes and cancer type
                          drugs_PO_FDA_biomarkers, ##FDA-approved precision oncology drugs with listed biomarkers
