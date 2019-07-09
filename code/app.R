@@ -48,6 +48,7 @@ ui <- fluidPage(
                     )
                   ),
                   selected = "Colorectal cancer"),
+      p(tags$hr()),
       fileInput(
         "file_MP",
         "Input tsv or csv file with molecular alterations",
@@ -55,6 +56,7 @@ ui <- fluidPage(
       ),
       helpText("If a file is not uploaded, an example profile is loaded into the app."),
       tableOutput("MP_data"),
+      p(tags$hr()),
       checkboxGroupInput(
         "filterSelection",
         label = h4("Filter Recommended Therapies"),
@@ -66,16 +68,24 @@ ui <- fluidPage(
         ),
         selected = c("sCancerType", "sAlteration", "sFDADrugs", "sCancerDrugs")
       ),
-      h5("Data sources"),
-      p(tags$a(href="https://dailymed.nlm.nih.gov/dailymed/",
-               "DailyMed")),
-      p(tags$a(href="https://www.genome.jp/kegg/", "KEGG")),
-      p(tags$a(href="https://www.drugbank.ca/", "DrugBank")),
-      p(tags$a(href="https://pubchem.ncbi.nlm.nih.gov/", "PubChem")),
-      p(tags$a(href="https://www.accessdata.fda.gov/scripts/cder/daf/",
-               "Drugs@FDA")),
-      p("Data derived from DailyMed, KEGG, DrugBank, PubChem, and
-Drugs@FDA.")
+      p(tags$hr()),
+      p(tags$label("Preprint available on ", tags$a(href="https://www.biorxiv.org/content/10.1101/605261v1", "Biorxiv"))),
+      p(tags$label("Data sources"),
+      tags$ul(
+        tags$li(tags$a(href="https://dailymed.nlm.nih.gov/dailymed/",
+                 "DailyMed")),
+        tags$li(tags$a(href="https://www.genome.jp/kegg/", "KEGG")),
+        tags$li(tags$a(href="https://www.drugbank.ca/", "DrugBank")),
+        tags$li(tags$a(href="https://pubchem.ncbi.nlm.nih.gov/", "PubChem")),
+        tags$li(tags$a(href="https://www.accessdata.fda.gov/scripts/cder/daf/",
+                 "Drugs@FDA"))
+      )),
+      p(tags$label("Source Code on GitHub"),
+        tags$ul(
+          tags$li(icon("github"), tags$a(href="https://github.com/SiminaB/CDGnet", "CDGnet Source Code")),
+          tags$li(icon("github"), tags$a(href="https://github.com/jkanche/nfpmShinyComponent", "CDGnet R/Sankey Visualization"))
+        )
+      )
     ),
     mainPanel(
       fluidRow(
