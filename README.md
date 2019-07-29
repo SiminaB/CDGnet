@@ -11,9 +11,13 @@ This code is distributed under the GPL (>= 3) license.
 ## Repository organization
 
 #### Code of conduct
-* Code of conduct.md: Required reading for developers and individuals who comment or open issues related to the CDGnet tool.
+* Code of conduct.md: Required reading for developers and individuals who open issues or make pull requests related to the CDGnet tool.
 #### CDGnet documentation
 * CDGnet documentation.pdf: Provides information on using the online CDGnet tool. In order to use the R code directly, please look at the example in the code_notebook directory and the source code in the code directory.
+#### Contribution guidelines
+* Contribution guidelines.md: Document providing details for individuals interested in collaborating, contributing, or asking questions about CDGnet. Please read it before posting issues or making pull requests.
+#### Contributors
+* List of CDGnet contributors. Individuals who make significant contributions to CDGnet may make a pull request to be added to this list.
 #### code directory
 * code/app.R: Code to create the CDGnet tool at http://epiviz.cbcb.umd.edu/shiny/CDGnet/.
 * code/functions.R: Functions used in code/app.R. The main wrapper functions are get_cat_1_2 for obtaining targeted therapies from the first 2 categories, as described in the 
