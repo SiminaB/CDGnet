@@ -1,0 +1,142 @@
+---
+title: "Therapy recommendations using biological networks: A breast cancer example"
+output: html_document
+runtime: shiny_prerendered
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE)
+options(shiny.sanitize.errors = FALSE)
+```
+
+<span style="color:red">
+<strong>Warning!</strong> The following tool is for research purposes only. It is not intended for clinical care. </span>
+
+### Load libraries:
+```{r include=TRUE, message=FALSE}
+library(utils)
+library(shiny)
+library(shinyBS)
+library(ggvis)
+library(networkD3)
+library(igraph)
+library(kableExtra)
+library(knitr)
+library(dplyr)
+library(rDGIdb)
+library(networkViz) ##this package is available at https://github.com/jkanche/nfpmShinyComponent
+```
+
+### Load objects:
+```{r}
+load("../data/example_CDGnet_database_inputs.RData")
+
+ls()
+```
+The example_CDGnet_database_inputs.RData file only has the drugs_PO_FDA_biomarkers, drugs_PO_FDA_targets, FDA_approved_drugs objects. To obtain the DrugBank_targets,
+KEGG_oncogenes, and list_paths_KEGG objects, see the files in the code_process_KEGG_DrugBank directory.
+
+### Source functions:
+```{r}
+source("../code/functions.R")
+```
+
+### Read in the example data:
+
+This is example data for a putative patient with ER+ breast cancer (ESR1 overexpression), who also has FGFR1 overexpression:
+```{r}
+MP <- read.table("../data/example_input.tsv",
+                 sep="\t",
+                 header = TRUE)
+
+MP
+```
+
+### Category 1 recommendations:
+
+Category 1 therapy recommendations consist of FDA-approved drugs _for these alterations in this cancer type_, i.e. the alterations represent biomarkers for this cancer type:
+```{r}
+Type1 <- get_cat_1_2(MP,
+                     cancer_type = "Breast cancer",
+                     drugs_PO_FDA_biomarkers)
+Type1
+```
+
+### Category 2 recommendations:
+
+Category 2 therapy recommendations consist of FDA-approved drugs _for these alterations in other cancer types_, i.e. the alterations represent biomarkers for other cancer types:
+```{r}
+Type2 <- get_cat_1_2(MP,
+                     cancer_type = "Breast cancer",
+                     drugs_PO_FDA_biomarkers,
+                     cat2 = "yes")
+Type2
+```
+
+### Category 3 recommendations:
+
+Category 3 therapy recommendations consist of drugs which have as targets the input genes/proteins or as biomarkers/targets other genes/proteins that are _downstream of the input oncogenes_ when considering the _pathway corresponding to this tumor type_. We only consider
+the option of FDA-approved targeted cancer therapies. First get the recommendations:
+```{r}
+Type3 <- get_cat_3_4(MP, ##input data frame
+                     cancer_type = "Breast cancer", ##character string
+                     cat_drugs = "Only FDA-approved targeted therapies for cancer", ##character string - whether only targeted cancer therapies, all FDA approved therapies, or all drugs in DrugBank
+                     list_paths = list_paths_KEGG, ##list of pathways
+                     KEGG_oncogenes, ##data frame with oncogenes and cancer type
+                     drugs_PO_FDA_biomarkers, ##FDA-approved precision oncology drugs with listed biomarkers
+                     drugs_PO_FDA_targets, ##FDA-approved precision oncology drugs with targets
+                     drug_targets = DrugBank_targets, ##data frame of targets for specific genes/proteins - right now, have DrugBank_targets
+                     FDA_approved_drugs, ##list of FDA-approved drugs)
+                     Type1 = Type1, ##results of get_cat_1_2
+                     Type2 = Type2, ##results of get_cat_1_2
+                     Type3 = NULL, ##results of get_cat_3_4 (only use in cat4 == "yes)
+                     cat4 = "no",
+                     subtype = "activation")
+dim(Type3$drugs_mat)
+head(Type3$drugs_mat)
+```
+
+Now visualize the network (must use console for this):
+```{r}
+res <- dataParser(MP, Type1, Type2, Type3$drugs_mat)
+
+chart <- networkViz:::NfpmViz(data = res)
+chart
+```
+
+### Category 4 recommendations:
+
+Category 4 therapy recommendations consist of drugs which have as targets the input genes/proteins or as biomarkers/targets other genes/proteins that are _downstream of the input oncogenes_ when considering the _pathway corresponding to other tumor types_. We only consider
+the option of FDA-approved targeted cancer therapies:
+```{r}
+Type4 <- get_cat_3_4(MP, ##input data frame
+                     cancer_type = "Breast cancer", ##character string
+                     cat_drugs = "Only FDA-approved targeted therapies for cancer", ##character string - whether only targeted cancer therapies, all FDA approved therapies, or all drugs in DrugBank
+                     list_paths = list_paths_KEGG, ##list of pathways
+                     KEGG_oncogenes, ##data frame with oncogenes and cancer type
+                     drugs_PO_FDA_biomarkers, ##FDA-approved precision oncology drugs with listed biomarkers
+                     drugs_PO_FDA_targets, ##FDA-approved precision oncology drugs with targets
+                     drug_targets = DrugBank_targets, ##data frame of targets for specific genes/proteins - right now, have DrugBank_targets
+                     FDA_approved_drugs, ##list of FDA-approved drugs)
+                     Type1 = Type1, ##results of get_cat_1_2
+                     Type2 = Type2, ##results of get_cat_1_2
+                     Type3 = Type3$drugs_mat, ##results of get_cat_3_4 (only use in cat4 == "yes)
+                     cat4 = "yes",
+                     subtype = "activation")
+dim(Type4$drugs_mat)
+head(Type4$drugs_mat)
+```
+
+Now visualize the network (must use console for this):
+```{r}
+res <- dataParser(MP, Type1, Type2, Type4$drugs_mat)
+
+chart <- networkViz:::NfpmViz(data = res)
+
+chart$render_component(shiny=FALSE)
+```
+
+Session info:
+```{r}
+sessionInfo()
+```
