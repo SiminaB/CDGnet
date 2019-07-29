@@ -12,6 +12,8 @@ library(networkViz)
 library(shinyjs)
 
 load("data/database_inputs_to_app.RData")
+
+##rename KEGG_cancer_paths_onc_long to Onc_df
 Onc_df <- KEGG_cancer_paths_onc_long 
 
 source("code/functions.R")
@@ -46,6 +48,7 @@ ui <- fluidPage(
                     )
                   ),
                   selected = "Colorectal cancer"),
+      p(tags$hr()),
       fileInput(
         "file_MP",
         "Input tsv or csv file with molecular alterations",
@@ -53,6 +56,7 @@ ui <- fluidPage(
       ),
       helpText("If a file is not uploaded, an example profile is loaded into the app."),
       tableOutput("MP_data"),
+      p(tags$hr()),
       checkboxGroupInput(
         "filterSelection",
         label = h4("Filter Recommended Therapies"),
@@ -60,46 +64,66 @@ ui <- fluidPage(
           "Same Cancer Type" = "sCancerType",
           "Same Alteration" = "sAlteration",
           "FDA Approved Drugs" = "sFDADrugs",
-          "Cancer Drugs Only" = "sCancerDrugs"
+          "FDA Approved Targeted Cancer Drugs" = "sCancerDrugs"
         ),
         selected = c("sCancerType", "sAlteration", "sFDADrugs", "sCancerDrugs")
+      ),
+      p(tags$hr()),
+      p(tags$label("Preprint available on ", tags$a(href="https://www.biorxiv.org/content/10.1101/605261v1", "Biorxiv"))),
+      p(tags$label("Data sources"),
+      tags$ul(
+        tags$li(tags$a(href="https://dailymed.nlm.nih.gov/dailymed/",
+                 "DailyMed")),
+        tags$li(tags$a(href="https://www.genome.jp/kegg/", "KEGG")),
+        tags$li(tags$a(href="https://www.drugbank.ca/", "DrugBank")),
+        tags$li(tags$a(href="https://pubchem.ncbi.nlm.nih.gov/", "PubChem")),
+        tags$li(tags$a(href="https://www.accessdata.fda.gov/scripts/cder/daf/",
+                 "Drugs@FDA"))
+      )),
+      p(tags$label("Source Code on GitHub"),
+        tags$ul(
+          tags$li(icon("github"), tags$a(href="https://github.com/SiminaB/CDGnet", "CDGnet Source Code")),
+          tags$li(icon("github"), tags$a(href="https://github.com/jkanche/nfpmShinyComponent", "CDGnet R/Sankey Visualization"))
+        )
       )
     ),
     mainPanel(
       fluidRow(
         column(12,
-              shinyjs::hidden(
-              wellPanel(
-                id="type1_drugs_panel",
-                textOutput("Type1_explanation"),
-                DT::dataTableOutput("Type1_drugs")
-                )
-        )),
+               shinyjs::hidden(
+                 wellPanel(
+                   id="type1_drugs_panel",
+                   textOutput("Type1_explanation"),
+                   DT::dataTableOutput("Type1_drugs")
+                 )
+               )),
         column(12,
                shinyjs::hidden(
                  wellPanel(
                    id="type2_drugs_panel",
                    textOutput("Type2_explanation"),
                    DT::dataTableOutput("Type2_drugs")
-               )
-        )),
+                 )
+               )),
         column(12,
                shinyjs::hidden(
-                wellPanel(
-                  id="type3_drugs_panel",
-                  textOutput("Type3_explanation"),
-                  uiOutput("Type3_viz"),
-                  DT::dataTableOutput("Type3_drugs")
-               ))
+                 wellPanel(
+                   id="type3_drugs_panel",
+                   textOutput("Type3_explanation"),
+                   uiOutput("Type3_viz"),
+                   DT::dataTableOutput("Type3_drugs")
+                   # plotOutput("Type3_network")
+                 ))
         ),
         column(12,
                shinyjs::hidden(
-                wellPanel(
-                  id="type4_drugs_panel",
-                  textOutput("Type4_explanation"),
-                  uiOutput("Type4_viz"),
-                  DT::dataTableOutput("Type4_drugs")
-               ))
+                 wellPanel(
+                   id="type4_drugs_panel",
+                   textOutput("Type4_explanation"),
+                   uiOutput("Type4_viz"),
+                   DT::dataTableOutput("Type4_drugs")
+                   # plotOutput("Type4_network")
+                 ))
         )
       )
     )
@@ -108,12 +132,13 @@ ui <- fluidPage(
 
 # server logic
 server <- function(input, output, session) {
+  
   observeEvent(input$filterSelection, {
     sAlt <- FALSE
     sCType <- FALSE
     sFDA <- FALSE
     sCDrug <- FALSE
-
+    
     if ("sCancerType" %in% input$filterSelection) {
       sCType <- TRUE
     }
@@ -173,7 +198,6 @@ server <- function(input, output, session) {
                        Data_type = "mutation",
                        Alteration = c("G13V","G1049S","deleterious"))
     }
-    
     ##standardize gene names from MP
     if (ncol(MP) > 1)
     {
@@ -191,16 +215,15 @@ server <- function(input, output, session) {
   ##now look at various categories of FDA-approved therapies
   ##1) Are there any FDA-approved therapies in this tumor type for these alterations
   Type1 <- reactive({
-    
     ##cancer type
     cancer_type <- input$cancer_type
-    
     ##MP data
     MP <- as.data.frame(MP_react())
     
     Type1 <- get_cat_1_2(MP,
                          cancer_type = cancer_type,
                          drugs_PO_FDA_biomarkers)
+    
     Type1
   })
   
@@ -212,10 +235,8 @@ server <- function(input, output, session) {
   
   ##2) Are there any FDA-approved therapies in other tumor types for these alterations
   Type2 <- reactive({
-    
     ##cancer type
     cancer_type <- input$cancer_type
-    
     ##MP data
     MP <- as.data.frame(MP_react())
     
@@ -254,7 +275,7 @@ server <- function(input, output, session) {
     
     Type1_df <- as.data.frame(Type1())
     Type2_df <- as.data.frame(Type2())
-
+    
     Type3 <- get_cat_3_4(MP, ##input data frame
                          cancer_type = cancer_type, ##character string
                          cat_drugs = cat_drugs,
@@ -269,8 +290,9 @@ server <- function(input, output, session) {
                          Type3 = NULL, ##results of get_cat_3_4 (only use in cat4 == "yes)
                          cat4 = "no",
                          subtype = "activation")
+    
     Type3  
-    })
+  })
   
   output$Type3_explanation <-
     renderText(
@@ -293,8 +315,11 @@ server <- function(input, output, session) {
     Type3_df <- as.data.frame(Type3()$drugs_mat)
     
     drugs <- combine_drugs(Type1_df, Type2_df, Type3_df)
+    
     edges3 <- get_edges_cats_3_4(Type3())
+    
     graph_pathways_cats_3_4(edges3, drugs, inputs)
+    
   })
   
   output$Type3_viz_caption <-
@@ -308,7 +333,10 @@ server <- function(input, output, session) {
     Type2_df <- as.data.frame(Type2())
     Type3_df <- as.data.frame(Type3()$drugs_mat)
     
+    # print(Type1_df)
+    # print(Type2_df)
     res <- dataParser(MP, Type1_df, Type2_df, Type3_df)
+    
     chart <- networkViz:::NfpmViz(data = res)
     chart$render_component(shiny = TRUE)
   })
@@ -321,7 +349,7 @@ server <- function(input, output, session) {
     
     ##MP data
     MP <- as.data.frame(MP_react())
-
+    
     ##drug types
     cat_drugs <- "Only FDA-approved targeted therapies for cancer"
     if ( "sFDADrugs" %in% input$filterSelection && "sCancerDrugs" %in% input$filterSelection) {

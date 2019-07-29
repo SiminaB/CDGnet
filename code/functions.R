@@ -25,7 +25,7 @@ gene_names_standard <- function(genes)
   print(not_mapped)
   ##remove NA
   not_mapped <- not_mapped[!is.na(not_mapped)]
-
+  
   ##for all these genes, add in the IDs at the end (except for NAs)    
   name2stand_name <- c(name2stand_name, not_mapped)
   names(name2stand_name) <- c(unlist(gene_names_sep_list), not_mapped)
@@ -77,7 +77,7 @@ check_WT_biomarkers <- function(drugs_bio,MP_df){
     
     drugs_bio <- dplyr::filter(drugs_bio, Gene.Protein %in% keep_MP_bio)
   }
-
+  
   drugs_bio
 }
 
@@ -110,7 +110,7 @@ calculate_shortest_path_from_inputs <- function(cancer_path,
   
   shortest_paths_from_inputs
 }
-  
+
 ##function that calculates the shortest paths from some inputs to some outputs
 ##returns a matrix with the inputs as rows, the outputs as columns, and the shortest path length as entries
 ##inputs and outputs are both character vectors
@@ -222,7 +222,7 @@ get_downstream_nodes <- function(inputs, shortest_paths_from_inputs)
   downstream_from_inputs <- names(which(sum_shortest_path>0))
   downstream_from_inputs
 }
-  
+
 ##filter data frames based on the gene/protein being in keep_genes
 ##keep only the unique drug names
 filter_drugs_select_genes <- function(drugs_genes_df,
@@ -430,7 +430,7 @@ remove_known_recs <- function(drugs_biomarkers_targets,Type1_df, Type2_df, Type3
   }
   drugs_biomarkers_targets
 }
-  
+
 ##function to add in the shortest path to the drugs_biomarkers_targets data frame
 add_shortest_path <- function(drugs_biomarkers_targets, 
                               inputs, inputs_in_path,
@@ -493,7 +493,9 @@ dataParser <- function(input, fda, fda_other, rec) {
         "nodes"=c(),
         "def_pos"=NULL
       )
-    )
+    ),
+    "order"=list(),
+    "alignLinkTypes"=FALSE
   )
   
   link <- list(      
@@ -521,11 +523,19 @@ dataParser <- function(input, fda, fda_other, rec) {
   node_count <- 1
   link_count <- 1
   
-  for (i in rownames(input)) {
-    row <- input[i, ]
+  mp_nodes <- c()
+  fda_nodes <- c()
+  it_nodes <- c()
+  rec_nodes <- c()
+  
+  input2 <- aggregate(input, by=list(input$Gene_protein), FUN=paste)
+  
+  for (i in rownames(input2)) {
+    row <- input2[i, ]
     mp_node <- node
     mp_node$title <- row$Gene_protein
     mp_node$id <- paste0("mp^", row$Gene_protein)
+    mp_nodes <- c(mp_nodes, mp_node$id)
     
     json$nodes[[node_count]] <- mp_node
     node_count <- node_count + 1
@@ -544,6 +554,7 @@ dataParser <- function(input, fda, fda_other, rec) {
       fda_node <- node
       fda_node$title <- row$Drug
       fda_node$id <- paste0("fda^", row$Drug)
+      fda_nodes <- c(fda_nodes, fda_node$id)
       
       json$nodes[[node_count]] <- fda_node
       node_count <- node_count + 1
@@ -562,8 +573,8 @@ dataParser <- function(input, fda, fda_other, rec) {
     }
   }
   
-  if(nrow(fda_other) >= 1) {
-    
+  if(nrow(fda_other) >= 1 && !length(fda_other$Note) >= 1) {
+    print(fda_other)
     unique_fda_other <- aggregate(fda_other, by=list(fda_other$Drug, fda_other$`Gene or Protein`), FUN=paste)
     
     
@@ -573,6 +584,7 @@ dataParser <- function(input, fda, fda_other, rec) {
       fda_other_node <- node
       fda_other_node$title <- row[["Group.1"]]
       fda_other_node$id <- paste0("fda^", row[["Group.1"]], " (other tumor type)")
+      fda_nodes <- c(fda_nodes, fda_other_node$id)
       
       json$nodes[[node_count]] <- fda_other_node
       node_count <- node_count + 1
@@ -623,6 +635,7 @@ dataParser <- function(input, fda, fda_other, rec) {
       rec_node <- node
       rec_node$title <- i
       rec_node$id <- paste0("rec^", i)
+      rec_nodes <- c(rec_nodes, rec_node$id)
       
       json$nodes[[node_count]] <- rec_node
       node_count <- node_count + 1
@@ -634,6 +647,7 @@ dataParser <- function(input, fda, fda_other, rec) {
       rec_node <- node
       rec_node$title <- i
       rec_node$id <- paste0("it^", i)
+      it_nodes <- c(it_nodes, rec_node$id)
       
       json$nodes[[node_count]] <- rec_node
       node_count <- node_count + 1
@@ -661,6 +675,8 @@ dataParser <- function(input, fda, fda_other, rec) {
   gfda <- json$groups$fda
   git <- json$groups$it
   grec <- json$groups$rec
+  
+  json$order <- list(list(mp_nodes, fda_nodes), list(it_nodes, list()), list(rec_nodes, list()))
   
   # order <- list(list(gmp$nodes, gfda$nodes), list(list(git$nodes)), list(list(grec$nodes)))
   # json$order <- order
@@ -713,7 +729,7 @@ get_cat_1_2 <- function(MP,
   
   Type1_2_df
 }
-  
+
 ##get Category 3,4 recommendations
 ##if cat4 == "yes", then it's category 4, otherwise it's category 3
 ##(difference is in using given cancer type, vs. all other cancer types)
@@ -790,7 +806,7 @@ get_cat_3_4 <- function(MP, ##input data frame
   cancer_path <- dplyr::filter(cancer_path,
                                (to %in% keep_genes) | 
                                  (from %in% keep_genes))
-
+  
   ##get the drugs which either target genes/proteins in keep_genes or for which
   ##the genes/proteins in keep_genes are biomarkers
   drugs_PO_FDA_biomarkers_keep <- filter_drugs_select_genes(drugs_PO_FDA_biomarkers,
@@ -850,7 +866,6 @@ get_cat_3_4 <- function(MP, ##input data frame
                                                   Type1_df=Type1,
                                                   Type2_df=Type2,
                                                   Type3_df=Type3)
-                                                  
   }
   
   colnames(drugs_biomarkers_targets)[c(2,3)] <- c("Gene or Protein","Type")
