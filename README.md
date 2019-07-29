@@ -2,7 +2,7 @@
 Repository for code related to the CDGnet tool
 
 The CDGnet tool is currently hosted at http://epiviz.cbcb.umd.edu/shiny/CDGnet/. It is an informatics tool for recommending targeted therapies to individuals with cancer using biological networks. Note that it is a research tool and should not be used for clinical care.
-This tools is described in the preprint https://www.biorxiv.org/content/10.1101/605261v1 by Kancherla, Rao, et al.
+This tool is described in the preprint https://www.biorxiv.org/content/10.1101/605261v1 by Kancherla, Rao, et al.
 
 Please open an issue at https://github.com/SiminaB/CDGnet/issues or email smb310@georgetown.edu if you have any questions or concerns about this software.
 
@@ -16,3 +16,5 @@ This code is distributed under the GPL (>= 3) license.
 preprint (approved either for the alterations in the tumor type or in other tumor types) and get_cat_3_4 for obtaining targeted therapies from categories 3 and 4 (using a network
 approach to prioritize additional therapies)
 * code/fda_parser.R: Code used to obtain the list of FDA-approved drugs. In order to run it, create a "data" subdirectory and download the Products.txt and Submissions.txt files from the zipped folder at https://www.fda.gov/drugs/drug-approvals-and-databases/drugsfda-data-files.
+* example_input.tsv: Tab-delimited example file used to generate the results presented in the preprint for a putative patient with ER+ breast cancer and FGFR1 overexpression.
+* example_input.csv: Comma-delimited example file used to generate the results presented in the preprint for a putative patient with ER+ breast cancer and FGFR1 overexpression.
