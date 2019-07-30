@@ -1,9 +1,9 @@
-# CDGnetdrug
+# CDGnet
 
-Repository for code related to the CDGnet tool
+Repository for code related to the CDGnet tool for prioritizing targeted cancer therapies
 
 The CDGnet tool is currently hosted at http://epiviz.cbcb.umd.edu/shiny/CDGnet/. It is an informatics tool for recommending targeted therapies to individuals with cancer using biological networks. Note that it is a research tool and should not be used for clinical care.
-This tool is described in the preprint https://www.biorxiv.org/content/10.1101/605261v1 by Kancherla, Rao, et al. The code for the Sankey network visualization is at https://github.com/jkanche/nfpmShinyComponent.
+This tool is described in the preprint https://www.biorxiv.org/content/10.1101/605261v1 by Kancherla, Rao, et al.
 
 Please open an issue at https://github.com/SiminaB/CDGnet/issues or email smb310@georgetown.edu if you have any questions or concerns about this software.
 
