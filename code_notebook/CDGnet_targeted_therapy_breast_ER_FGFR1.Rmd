@@ -29,12 +29,12 @@ library(networkViz) ##this package is available at https://github.com/jkanche/nf
 
 ### Load objects:
 ```{r}
-load("../data/example_CDGnet_database_inputs.RData")
+load("../objs/example_CDGnet_database_inputs.RData")
 
 ls()
 ```
-The example_CDGnet_database_inputs.RData file only has the drugs_PO_FDA_biomarkers, drugs_PO_FDA_targets, FDA_approved_drugs objects. To obtain the DrugBank_targets,
-KEGG_oncogenes, and list_paths_KEGG objects, see the files in the code_process_KEGG_DrugBank directory.
+The example_CDGnet_database_inputs.RData file has the drugs_PO_FDA_biomarkers, drugs_PO_FDA_targets, FDA_approved_drugs, and DrugBank_targets objects. To obtain the
+KEGG_oncogenes and list_paths_KEGG objects, see the files in the code_process_KEGG directory.
 
 ### Source functions:
 ```{r}

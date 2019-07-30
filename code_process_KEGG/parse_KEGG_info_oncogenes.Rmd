@@ -1,0 +1,55 @@
+---
+title: "Parse the KEGG oncogene information by cancer type"
+date: "`r Sys.time()`"
+output: html_document
+---
+
+Load libraries:
+
+```{r}
+library(dplyr)
+```
+
+This code assumes that you have already curated the oncogene information from KEGG in a csv file in ../KEGG_cancer_pathways_info, which has KEGG_id, Name (pathway name), and Oncogenes (delimited by ";") as columns.
+Read in the information on oncogenes for each cancer type:
+```{r}
+KEGG_cancer_paths_onc <- read.csv("../KEGG_cancer_pathways_info/KEGG_cancer_pathways_oncogenes.csv")
+dim(KEGG_cancer_paths_onc)
+
+colnames(KEGG_cancer_paths_onc)[1] <- "KEGG_id" ##had encoding issue
+
+KEGG_cancer_paths_onc <- KEGG_cancer_paths_onc[,1:3]
+KEGG_cancer_paths_onc$KEGG_id <- as.character(KEGG_cancer_paths_onc$KEGG_id)
+KEGG_cancer_paths_onc$Name <- as.character(KEGG_cancer_paths_onc$Name)
+KEGG_cancer_paths_onc$Oncogen <- as.character(KEGG_cancer_paths_onc$Oncogen)
+
+```
+
+Split all the oncogenes on ";":
+```{r}
+onc_list <- strsplit(as.character(KEGG_cancer_paths_onc$Oncogenes), ";")
+names(onc_list) <- as.character(KEGG_cancer_paths_onc$KEGG_id)
+##make new data frame
+KEGG_cancer_paths_onc_long <- data.frame(KEGG_id = character(),
+                                         Name = character(),
+                                         Oncogene = character())
+for(KEGG_id in names(onc_list))
+{
+  onc_list_id <- onc_list[[KEGG_id]]
+  name_id <- 
+    KEGG_cancer_paths_onc$Name[KEGG_cancer_paths_onc$KEGG_id==KEGG_id]
+  KEGG_cancer_paths_onc_long <- rbind(KEGG_cancer_paths_onc_long,
+                                      data.frame(KEGG_id=KEGG_id,
+                                                 Name=name_id,
+                                                 Oncogene=onc_list_id))
+}
+
+```
+
+Save this:
+```{r}
+
+save(list="KEGG_cancer_paths_onc_long",
+     file="../objs/KEGG_cancer_paths_onc_long.RData")
+
+```

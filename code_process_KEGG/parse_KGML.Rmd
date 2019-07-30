@@ -1,0 +1,107 @@
+---
+title: "Parse all the KGML files for human KEGG pathways and save as csv files"
+date: "`r Sys.time()`"
+output: html_document
+---
+
+Load libraries:
+
+```{r}
+library(KEGGgraph) ##use this to convert KGML to data frame
+library(KEGGREST) ##use this to convert KEGG gene IDs to NCBI gene IDs - no longer needed
+library(org.Hs.eg.db) ##use this to convert gene IDs to gene names
+library(dplyr)
+library(igraph) ##use this to convert to graph object
+```
+
+Loop through all KGML files representing human KEGG pathways, convert them into data frames and save them as csv files in ../All_human_pathways_csv. Also save the network diagrams in ../All_human_pathways_figs (this is just for checking). I also converted the KEGG gene IDs to regular gene IDs. Note that some pathways did not convert properly for various reasons and thus were not saved as csv/png files (could be there were no genes or proteins or there were unusual schemas).
+
+```{r}
+##get all the KGML xml files in ../Pathways_KGML and convert them to data frames
+all_kgml <- list.files("../All_human_pathways_KGML")
+for(file_kgml in all_kgml)
+{
+  file_path_kgml <- paste("../All_human_pathways_KGML",file_kgml, sep="/")
+  
+  ##convert KGML to data frame
+  current_df <- parseKGML2DataFrame(file_path_kgml)
+  
+  if(nrow(current_df) > 0)
+  {
+    current_df$from <- as.character(current_df$from)
+    current_df$to <- as.character(current_df$to)
+    ##get all KEGG IDs for nodes
+    all_nodes <- unique(c(current_df[,1], current_df[,2]))
+    
+    ##first get rid of the "hsa:" part in front of the IDs
+    all_nodes_gid <- gsub("hsa:","",all_nodes)
+    names(all_nodes_gid) <- all_nodes
+
+    if(sum(!is.na(all_nodes_gid)) > 0)
+    {
+      length(unique(all_nodes))
+      length(unique(all_nodes_gid))
+      head(all_nodes)
+      head(all_nodes_gid)
+      
+      gid_to_name <- as.character(org.Hs.egSYMBOL)
+      all_nodes_gene_symbol <- gid_to_name[all_nodes_gid] 
+      head(all_nodes_gene_symbol)
+      length(all_nodes_gene_symbol)
+
+      all_nodes_gene_symbol <- gid_to_name[all_nodes_gid] 
+      
+      ##now put in gene names in the data frame
+      ##only keep KEGG IDs that do get mapped 
+      ##(the other IDs are probaly things like pathways _not_ genes/proteins)
+      current_df <- dplyr::filter(current_df, 
+                                  from %in% names(all_nodes_gid),
+                                  to %in% names(all_nodes_gid))
+      
+      current_df$from <- all_nodes_gene_symbol[all_nodes_gid[current_df$from]]
+      current_df$to <- all_nodes_gene_symbol[all_nodes_gid[current_df$to]]
+      head(current_df)
+      
+      graph <- graph_from_data_frame(current_df)
+      V(graph)$size <- 8
+      V(graph)$label.cex <- 0.6
+      
+      png_name <- paste("../All_human_pathways_figs",gsub("(.xml)|(.kgml)", ".png",file_kgml),sep="/")
+      
+      png(filename=png_name)
+      try(plot(graph,
+               edge.arrow.size=0,
+               layout=layout_with_kk))
+      dev.off()
+      
+      csv_name <- paste("../All_human_pathways_csv",gsub("(.xml)|(.kgml)", ".csv",file_kgml),sep="/")
+      
+      write.csv(x=current_df, file=csv_name)
+      
+    }  
+  }
+}
+```
+
+Also obtain all the connections between genes/proteins based on the KEGG pathways and create a data frame with them, saved in ../objs/connections_KEGG.RData. Furthermore, create a list of dataframes, saved in the same place.
+```{r}
+##load the KEGG pathways and store them in a single data frame
+all_KEGG <- list.files("../All_human_pathways_csv")
+connections_KEGG <- data.frame()
+list_paths_KEGG <- list()
+for(KEGG_path in all_KEGG)
+{
+  KEGG_path_df <- read.csv(paste("../All_human_pathways_csv",
+                                 KEGG_path, sep="/"))
+  connections_KEGG <- rbind(connections_KEGG,
+                            KEGG_path_df)  
+  KEGG_path_name <- gsub(".csv","",KEGG_path)
+  list_paths_KEGG[[KEGG_path_name]] <- KEGG_path_df[,-1]
+}
+##get rid of first column
+connections_KEGG <- connections_KEGG[,-1]
+
+save(list="connections_KEGG", file="../objs/connections_KEGG.RData")
+save(list="list_paths_KEGG", file="../objs/list_paths_KEGG.RData")
+
+```

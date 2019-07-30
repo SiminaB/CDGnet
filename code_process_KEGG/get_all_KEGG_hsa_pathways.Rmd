@@ -1,0 +1,34 @@
+---
+title: "Download all human KEGG pathways as KGML files"
+date: "`r Sys.time()`"
+output: html_document
+---
+
+Load the KEGGREST package, which gives access to the KEGGREST API:
+
+```{r}
+library(KEGGREST)
+listDatabases()
+```
+
+
+```{r}
+##get all pathways (hsa = homo sapiens)
+all_path_KEGG <- keggList("pathway", organism="hsa")
+length(all_path_KEGG)
+head(all_path_KEGG)
+```
+
+Download all the human pathways as KGML files (this is a KEGG-specific XML format):
+
+```{r}
+##now get all kgml files for all pathways
+for(path in names(all_path_KEGG))
+{
+  path_name <- gsub("path:","",path)
+  path_kgml <- keggGet(path, "kgml")
+  write(path_kgml, paste("../All_human_pathways_KGML/",
+                         path_name, ".kgml",
+                         sep=""))
+}
+```

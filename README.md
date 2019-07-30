@@ -1,4 +1,5 @@
-# CDGnet
+# CDGnetdrug
+
 Repository for code related to the CDGnet tool
 
 The CDGnet tool is currently hosted at http://epiviz.cbcb.umd.edu/shiny/CDGnet/. It is an informatics tool for recommending targeted therapies to individuals with cancer using biological networks. Note that it is a research tool and should not be used for clinical care.
@@ -26,8 +27,16 @@ approach to prioritize additional therapies)
 * code/fda_parser.R: Code used to obtain the list of FDA-approved drugs. In order to run it, create a "data" subdirectory and download the Products.txt and Submissions.txt files from the zipped folder at https://www.fda.gov/drugs/drug-approvals-and-databases/drugsfda-data-files.
 #### code_notebook directory
 * code_notebook/CDGnet_targeted_therapy_breast_ER_FGFR1.Rmd: Rmd file that can be used to generate the results presented in the preprint for a putative patient with ER+ breast cancer and FGFR1 overexpression.
-#### data directory
+#### code_process_KEGG directory
+* code_process_KEGG/get_all_KEGG_hsa_pathways.Rmd and .html: Rmd file that downloads all the KEGG hsa (Homo sapiens) pathways as KGML files (html is output file)
+* code_process_KEGG/parse_KGML.Rmd and .html: Rmd file that parses KGLM files (html is output file)
+* code_process_KEGG/parse_KEGG_info_oncogenes.Rmd and .html: Rmd file that parses oncogene information from KEGG (html is output file)
+* code_process_KEGG/Preprocess_KEGG_objects.Rmd and .html: Rmd file that preprocesses KEGG objects obtained from running files above in order to use standard gene names and disease names (html is output file)
+#### data directory (example input tsv and csv files)
 * data/example_input.tsv: Tab-delimited example file used to generate the results presented in the preprint for a putative patient with ER+ breast cancer and FGFR1 overexpression.
 * data/example_input.csv: Comma-delimited example file used to generate the results presented in the preprint for a putative patient with ER+ breast cancer and FGFR1 overexpression.
-* data/example_CDGnet_database_inputs.RData: R objects used in the online CDGnet tool as well as the code_notebook/CDGnet_targeted_therapy_breast_ER_FGFR1.Rmd file. In order to be able to run code_notebook/CDGnet_targeted_therapy_breast_ER_FGFR1.Rmd, need additional objects that can be obtained
-by running the code in code_process_KEGG_DrugBank
+#### objs directory
+* objs/example_CDGnet_database_inputs.RData: R objects used in the online CDGnet tool as well as the code_notebook/CDGnet_targeted_therapy_breast_ER_FGFR1.Rmd file. In order to be able to run code_notebook/CDGnet_targeted_therapy_breast_ER_FGFR1.Rmd, need additional objects that can be obtained
+by running the code in code_process_KEGG
+
+
