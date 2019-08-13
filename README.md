@@ -7,7 +7,9 @@ This tool is described in the preprint https://www.biorxiv.org/content/10.1101/6
 
 Please open an issue at https://github.com/SiminaB/CDGnet/issues or email smb310@georgetown.edu if you have any questions or concerns about this software.
 
-This code is distributed under the GPL (>= 3) license.
+This code is distributed under the GPL (>= 3) license. Please note that we are including data from DrugBank and that, while "DrugBank is offered to the public as a freely available resource," commercial use requires a license and
+users who use CDGnet with the DrugBank data should also cite the DrugBank papers. More information is available [here](https://www.drugbank.ca/).
+**This software comes without warranty of any kind. It is intended for research purposes only and not for clinical care.**
 
 ## Repository organization
 
