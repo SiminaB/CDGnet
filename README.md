@@ -16,7 +16,7 @@ users who use CDGnet with the DrugBank data should also cite the DrugBank papers
 #### Code of conduct
 * _Code of conduct.md_: Required reading for developers and individuals who open issues or make pull requests related to the CDGnet tool.
 #### CDGnet documentation
-* _CDGnet documentation.pdf_: Provides information on using the online CDGnet tool. In order to use the R code directly, please look at the example in the code_notebook directory and the source code in the code directory.
+* _CDGnet\__documentation.pdf_: Provides information on using the online CDGnet tool. In order to use the R code directly, please look at the example in the code_notebook directory and the source code in the code directory.
 #### Contribution guidelines
 * *Contribution guidelines.md*: Document providing details for individuals interested in collaborating, contributing, or asking questions about CDGnet. Please read it before posting issues or making pull requests.
 #### Contributors
