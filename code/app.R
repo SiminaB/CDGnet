@@ -137,6 +137,8 @@ ui <- fluidPage(
 # server logic
 server <- function(input, output, session) {
   
+  flagCategory <<- "type1" #by default, category is 1. #added by kb
+
   observeEvent(input$filterSelection, {
     sAlt <- FALSE
     sCType <- FALSE
@@ -161,18 +163,22 @@ server <- function(input, output, session) {
     }
     
     if (sAlt && sCType) {
+      flagCategory <<- "type1"
       shinyjs::show("type1_drugs_panel")
     }
     
     if (sAlt && !sCType) {
+      flagCategory <<- "type2"
       shinyjs::show("type2_drugs_panel")
     }
     
     if (!sAlt && sCType) {
+      flagCategory <<- "type3"
       shinyjs::show("type3_drugs_panel")
     }
     
     if (!sAlt && !sCType) {
+      flagCategory <<- "type4"
       shinyjs::show("type4_drugs_panel")
     }
   })
