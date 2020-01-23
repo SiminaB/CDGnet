@@ -124,11 +124,15 @@ ui <- fluidPage(
                    DT::dataTableOutput("Type4_drugs")
                    # plotOutput("Type4_network")
                  ))
-        )
-      )
-    )
-  )
-)
+        ),	
+        
+        #download button	
+        downloadButton("downloadTable", "Download recommended drugs table as csv")
+        
+      )#end of Fluid row	
+    )#end of main panel	
+  )	
+)	
 
 # server logic
 server <- function(input, output, session) {
@@ -424,6 +428,32 @@ server <- function(input, output, session) {
     chart <- networkViz:::NfpmViz(data = res)
     chart$render_component(shiny = TRUE)
   })
+  
+  ################################## Download handler 1 # Added by KB
+  # downloadHandler() takes two arguments, both functions.
+  # The content function is passed a filename as an argument, and
+  # It should write out data to that filename.
+  output$downloadTable <- downloadHandler(
+    
+    filename = function() {
+      paste(flagCategory, "_drugs_table_",Sys.Date(),".csv",sep="")
+    },
+    content = function(file) {
+      if(flagCategory == "type1") {
+        #write.table(Type1()$drugs_mat, file, sep="\t", row.names = FALSE,quote=FALSE)
+        write.csv(Type1(), file, row.names = FALSE, quote=FALSE, sep="\t")
+      } else if (flagCategory == "type2") {
+        #write.table(Type2()$drugs_mat, file, sep="\t", row.names = FALSE, quote=FALSE)
+        write.csv(Type2(), file, row.names = FALSE, quote=FALSE,sep="\t")
+      } else if (flagCategory == "type3") {
+        #write.table(Type3()$drugs_mat, file, sep="\t", row.names = FALSE, quote=FALSE)
+        write.csv(Type3()$drugs_mat, file, row.names = FALSE, quote=FALSE, sep="\t")
+      } else if (flagCategory == "type4") {
+        #write.table(Type4()$drugs_mat, file, sep="\t", row.names = FALSE, quote=FALSE)
+        write.csv(Type4()$drugs_mat, file, row.names = FALSE, quote=FALSE, sep="\t")
+      }
+    } # end of content
+  ) # end of download handler 1
 }
 
 # Run the application
