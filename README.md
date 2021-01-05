@@ -3,7 +3,10 @@
 Repository for code related to the CDGnet tool for prioritizing targeted cancer therapies
 
 The CDGnet tool is currently hosted at http://epiviz.cbcb.umd.edu/shiny/CDGnet/. It is an informatics tool for recommending targeted therapies to individuals with cancer using biological networks. Note that it is a research tool and should not be used for clinical care.
-This tool is described in the preprint https://www.biorxiv.org/content/10.1101/605261v1 by Kancherla, Rao, et al.
+This tool is described in the following publication:
+Kancherla J, Rao S, Bhuvaneshwar K, Riggins RB, Beckman RA, Madhavan S, Corrada Bravo H, Boca
+SM. "An evidence-based network approach to recommending targeted cancer therapies." *JCO Clinical Cancer Informatics*, 2020, 4:71-88. 
+https://ascopubs.org/doi/full/10.1200/CCI.19.00097
 
 Please open an issue at https://github.com/SiminaB/CDGnet/issues or email smb310@georgetown.edu if you have any questions or concerns about this software.
 
