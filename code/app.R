@@ -11,12 +11,13 @@ library(rDGIdb)
 library(networkViz)
 library(shinyjs)
 
-load("data/database_inputs_to_app.RData")
+load("../data/database_inputs_to_app.RData")
+load("../data/KEGG_cancer_paths_onc_long.RData") ##this file is not provided
 
 ##rename KEGG_cancer_paths_onc_long to Onc_df
 Onc_df <- KEGG_cancer_paths_onc_long 
 
-source("code/functions.R")
+source("../code/functions.R")
 
 # Define UI for application
 ui <- fluidPage(
